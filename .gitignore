@@ -1,1 +1,8 @@
+# General
+*.log
+
+# Node
 node_modules/
+
+# App
+dist/
