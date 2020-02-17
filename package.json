@@ -7,10 +7,16 @@
   "repository": "git@github.com:myrovh/rollup_template.git",
   "author": "myrovh <myrovh@yandex.com>",
   "main": "index.js",
+  "scripts": {
+    "build": "NODE_ENV=production yarn rollup -c",
+    "host": "servor dist index.html 3000",
+    "serve": "servor dist index.html 3000 --reload",
+    "start": "yarn rollup -c --watch"
+  },
   "dependencies": {
     "dynamic-import-polyfill": "^0.1.1",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react": "npm:@pika/react",
+    "react-dom": "npm:@pika/react-dom"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
@@ -20,15 +26,23 @@
     "@babel/preset-typescript": "^7.8.3",
     "@types/react": "^16.9.19",
     "@types/react-dom": "^16.9.5",
+    "chokidar": "^3.3.1",
+    "nunjucks": "^3.2.0",
     "prettier": "^1.19.1",
     "prettier-plugin-package": "^0.3.1",
     "rollup": "^1.31.1",
+    "rollup-plugin-analyzer": "^3.2.2",
     "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-clear": "^2.0.7",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-progress": "^1.1.1",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^5.2.0",
     "servor": "^3.2.0",
     "typescript": "^3.7.5"
+  },
+  "config": {
+    "publicDir": "dist"
   }
 }

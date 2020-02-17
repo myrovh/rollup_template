@@ -1,24 +1,14 @@
-/*
- Copyright 2019 Google Inc. All Rights Reserved.
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
-
 // Copied from https://github.com/philipwalton/rollup-native-modules-boilerplate
 
-import path from 'path'
+import analyse from 'rollup-plugin-analyzer'
 import babel from 'rollup-plugin-babel'
+import clear from 'rollup-plugin-clear'
 import commonjs from 'rollup-plugin-commonjs'
 import nodeResolve from 'rollup-plugin-node-resolve'
+import nunjucks from 'nunjucks'
+import path from 'path'
+import pkg from './package.json'
+import progress from 'rollup-plugin-progress'
 import replace from 'rollup-plugin-replace'
 import { terser } from 'rollup-plugin-terser'
 
@@ -54,6 +44,30 @@ function manifestPlugin() {
 }
 
 /**
+ * A Rollup plugin to generate an index.html with entry chunks embedded.
+ * @return {Object}
+ */
+function generateHtmlPlugin() {
+  return {
+    name: 'htmlGenerate',
+    generateBundle(options, bundle) {
+      for (const [name, assetInfo] of Object.entries(bundle)) {
+        manifest[assetInfo.name] = name
+      }
+
+      this.emitFile({
+        type: 'asset',
+        fileName: 'index.html',
+        source: nunjucks.render('src/index.html', {
+          manifest,
+          ENV: process.env.NODE_ENV || 'development',
+        }),
+      })
+    },
+  }
+}
+
+/**
  * A Rollup plugin to generate a list of import dependencies for each entry
  * point in the module graph. This is then used by the template to generate
  * the necessary `<link rel="modulepreload">` tags.
@@ -83,17 +97,19 @@ function modulepreloadPlugin() {
 }
 
 function basePlugins({ nomodule = false } = {}) {
+  const extensions = ['.js', '.mjs', '.ts', '.tsx']
   const plugins = [
+    clear({ targets: [pkg.config.publicDir] }),
     nodeResolve({
-      extensions: ['.mjs', '.js', '.json', '.node', '.ts', '.tsx'],
+      extensions,
     }),
     commonjs(),
     babel({
-      extensions: ['.ts', '.tsx', '.mjs', '.js'],
+      extensions,
       exclude: /node_modules/,
       presets: [
         nomodule
-          ? ['@babel/preset-env']
+          ? ['@babel/preset-env', { targets: '> 0.25%, not dead' }]
           : ['@babel/preset-modules', { loose: true }],
         '@babel/preset-typescript',
         '@babel/preset-react',
@@ -101,6 +117,9 @@ function basePlugins({ nomodule = false } = {}) {
     }),
     replace({ 'process.env.NODE_ENV': JSON.stringify('production') }),
     manifestPlugin(),
+    generateHtmlPlugin(),
+    progress(),
+    analyse({ summaryOnly: true }),
   ]
   // Only add minification in production and when not running on Glitch.
   if (process.env.NODE_ENV === 'production') {
@@ -115,7 +134,7 @@ const moduleConfig = {
     main: 'src/main-module.ts',
   },
   output: {
-    dir: 'dist',
+    dir: pkg.config.publicDir,
     format: 'esm',
     entryFileNames: '[name]-[hash].mjs',
     chunkFileNames: '[name]-[hash].mjs',
@@ -148,6 +167,8 @@ const moduleConfig = {
     }
   },
   watch: {
+    include: 'src/**',
+    chokidar: true,
     clearScreen: false,
   },
 }
@@ -158,7 +179,7 @@ const nomoduleConfig = {
     nomodule: 'src/main-nomodule.ts',
   },
   output: {
-    dir: 'dist',
+    dir: pkg.config.publicDir,
     format: 'iife',
     entryFileNames: '[name]-[hash].js',
   },
