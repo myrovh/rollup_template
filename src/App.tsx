@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { css } from '@emotion/core'
 
 type entryInfo = {
   URL: string
@@ -25,8 +26,16 @@ export const App = () => {
     <div>
       <ul>
         {getImportedModules().map(({ timestamp, URL }) => (
-          <li key={URL} className="App-module">
-            [{timestamp}] <a href={URL}>{URL}</a>
+          <li key={URL}>
+            [{timestamp}]{' '}
+            <a
+              css={css`
+                color: 'hotpink';
+              `}
+              href={URL}
+            >
+              {URL}
+            </a>
           </li>
         ))}
       </ul>

@@ -113,8 +113,10 @@ function basePlugins({ nomodule = false } = {}) {
           : ['@babel/preset-modules', { loose: true }],
         '@babel/preset-typescript',
         '@babel/preset-react',
+        '@emotion/babel-preset-css-prop',
       ],
     }),
+    replace({ 'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV) }),
     manifestPlugin(),
     generateHtmlPlugin(),
     progress(),
@@ -122,9 +124,6 @@ function basePlugins({ nomodule = false } = {}) {
   ]
   // Only add minification in production and when not running on Glitch.
   if (process.env.NODE_ENV === 'production') {
-    plugins.push(
-      replace({ 'process.env.NODE_ENV': JSON.stringify('production') }),
-    )
     plugins.push(terser({ module: !nomodule }))
   }
   return plugins
@@ -137,6 +136,7 @@ const moduleConfig = {
   },
   output: {
     dir: pkg.config.publicDir,
+    sourcemap: true,
     format: 'esm',
     entryFileNames: '[name]-[hash].mjs',
     chunkFileNames: '[name]-[hash].mjs',
