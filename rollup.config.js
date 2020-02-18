@@ -115,7 +115,6 @@ function basePlugins({ nomodule = false } = {}) {
         '@babel/preset-react',
       ],
     }),
-    replace({ 'process.env.NODE_ENV': JSON.stringify('production') }),
     manifestPlugin(),
     generateHtmlPlugin(),
     progress(),
@@ -123,6 +122,9 @@ function basePlugins({ nomodule = false } = {}) {
   ]
   // Only add minification in production and when not running on Glitch.
   if (process.env.NODE_ENV === 'production') {
+    plugins.push(
+      replace({ 'process.env.NODE_ENV': JSON.stringify('production') }),
+    )
     plugins.push(terser({ module: !nomodule }))
   }
   return plugins
@@ -186,6 +188,8 @@ const nomoduleConfig = {
   plugins: basePlugins({ nomodule: true }),
   inlineDynamicImports: true,
   watch: {
+    include: 'src/**',
+    chokidar: true,
     clearScreen: false,
   },
 }

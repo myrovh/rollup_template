@@ -1,2 +1,7 @@
 # rollup_template
-Rollup, Typescript, native modules and React
+
+Rollup, Typescript, Jest, React, native modules
+
+## Polyfills
+
+Using [Pollyfiller](https://github.com/wessberg/polyfiller) to handle browser polyfills.
