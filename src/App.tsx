@@ -6,6 +6,14 @@ type entryInfo = {
   timestamp: string
 }
 
+// TODO make async module example (that shows new modules being loaded by the getImportedModules component)
+// TODO make typescript usage more complex so tslib integration can be tested
+// TODO attempt to use rollup-plugin-ts to combine babel and tsc, compare build time and bundle size
+// TODO try some different development servers
+// TODO setup hosting on now
+// TODO setup eslint
+// TODO setup stylelint
+
 export const App = () => {
   function getImportedModules(): entryInfo[] {
     return performance
@@ -30,7 +38,7 @@ export const App = () => {
             [{timestamp}]{' '}
             <a
               css={css`
-                color: 'hotpink';
+                color: hotpink;
               `}
               href={URL}
             >
