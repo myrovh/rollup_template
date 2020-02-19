@@ -182,6 +182,7 @@ const nomoduleConfig = {
   },
   output: {
     dir: pkg.config.publicDir,
+    sourcemap: true,
     format: 'iife',
     entryFileNames: '[name]-[hash].js',
   },
