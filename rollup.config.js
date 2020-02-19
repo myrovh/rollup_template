@@ -19,29 +19,7 @@ import { terser } from 'rollup-plugin-terser'
 // since everything  is currently being built here, it's OK to just initialize
 // it as an empty object object when the build starts.
 const manifest = {}
-
-/**
- * A Rollup plugin to generate a manifest of chunk names to their filenames
- * (including their content hash). This manifest is then used by the template
- * to point to the correct URL.
- * @return {Object}
- */
-function manifestPlugin() {
-  return {
-    name: 'manifest',
-    generateBundle(options, bundle) {
-      for (const [name, assetInfo] of Object.entries(bundle)) {
-        manifest[assetInfo.name] = name
-      }
-
-      this.emitFile({
-        type: 'asset',
-        fileName: 'manifest.json',
-        source: JSON.stringify(manifest, null, 2),
-      })
-    },
-  }
-}
+const modulepreload = {}
 
 /**
  * A Rollup plugin to generate an index.html with entry chunks embedded.
@@ -55,42 +33,20 @@ function generateHtmlPlugin() {
         manifest[assetInfo.name] = name
       }
 
-      this.emitFile({
-        type: 'asset',
-        fileName: 'index.html',
-        source: nunjucks.render('src/index.html', {
-          manifest,
-          ENV: process.env.NODE_ENV || 'development',
-        }),
-      })
-    },
-  }
-}
-
-/**
- * A Rollup plugin to generate a list of import dependencies for each entry
- * point in the module graph. This is then used by the template to generate
- * the necessary `<link rel="modulepreload">` tags.
- * @return {Object}
- */
-function modulepreloadPlugin() {
-  return {
-    name: 'modulepreload',
-    generateBundle(options, bundle) {
-      // A mapping of entry chunk names to their full dependency list.
-      const modulepreloadMap = {}
-
-      // Loop through all the chunks to detect entries.
       for (const [fileName, chunkInfo] of Object.entries(bundle)) {
         if (chunkInfo.isEntry || chunkInfo.isDynamicEntry) {
-          modulepreloadMap[chunkInfo.name] = [fileName, ...chunkInfo.imports]
+          modulepreload[chunkInfo.name] = [fileName, ...chunkInfo.imports]
         }
       }
 
       this.emitFile({
         type: 'asset',
-        fileName: 'modulepreload.json',
-        source: JSON.stringify(modulepreloadMap, null, 2),
+        fileName: 'index.html',
+        source: nunjucks.render('src/index.html', {
+          manifest,
+          modulepreload,
+          ENV: process.env.NODE_ENV || 'development',
+        }),
       })
     },
   }
@@ -117,12 +73,10 @@ function basePlugins({ nomodule = false } = {}) {
       ],
     }),
     replace({ 'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV) }),
-    manifestPlugin(),
     generateHtmlPlugin(),
     progress(),
     analyse({ summaryOnly: true }),
   ]
-  // Only add minification in production and when not running on Glitch.
   if (process.env.NODE_ENV === 'production') {
     plugins.push(terser({ module: !nomodule }))
   }
@@ -142,7 +96,7 @@ const moduleConfig = {
     chunkFileNames: '[name]-[hash].mjs',
     dynamicImportFunction: '__import__',
   },
-  plugins: [...basePlugins(), modulepreloadPlugin()],
+  plugins: [...basePlugins()],
   manualChunks(id) {
     if (id.includes('node_modules')) {
       // The directory name following the last `node_modules`.
