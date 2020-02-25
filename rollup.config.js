@@ -4,6 +4,7 @@ import analyse from 'rollup-plugin-analyzer'
 import babel from 'rollup-plugin-babel'
 import clear from 'rollup-plugin-clear'
 import commonjs from 'rollup-plugin-commonjs'
+import copy from 'rollup-plugin-cpy'
 import nodeResolve from 'rollup-plugin-node-resolve'
 import nunjucks from 'nunjucks'
 import path from 'path'
@@ -72,6 +73,10 @@ function basePlugins({ nomodule = false } = {}) {
         '@emotion/babel-preset-css-prop',
       ],
     }),
+    copy({
+      files: ['src/static/**/*'],
+      dest: pkg.config.publicDir,
+    }),
     replace({ 'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV) }),
     generateHtmlPlugin(),
     progress(),
@@ -119,7 +124,7 @@ const moduleConfig = {
       }
 
       // Otherwise just return the name.
-      return name
+      return name.replace('@', '')
     }
   },
   watch: {
@@ -150,6 +155,7 @@ const nomoduleConfig = {
 }
 
 const configs = [moduleConfig]
+
 if (process.env.NODE_ENV === 'production') {
   configs.push(nomoduleConfig)
 }

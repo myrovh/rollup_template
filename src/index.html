@@ -4,21 +4,46 @@
     <meta charset="utf-8" />
     <title>Rollup Template</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="Description" content="Rollup module + nomodules template" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link href="favicon.png" rel="icon" type="image/png" />
     {% for module in modulepreload.main %}
     <link rel="modulepreload" href="{{ module }}" />
     {%- endfor %}
+    <style>
+      .hidden {
+        display: none;
+      }
+      .center {
+        height: 100%;
+        width: 100%;
+        display: flex;
+      }
+      #icon {
+        width: 200px;
+        height: 200px;
+        margin: auto;
+      }
+    </style>
+    <script>
+      ;(function() {
+        function revealLoading() {
+          const loadingDiv = document.getElementById('loading')
+          if (loadingDiv && loadingDiv.classList.contains('hidden')) {
+            loadingDiv.classList.remove('hidden')
+            loadingDiv.classList.add('center')
+          }
+        }
+        setTimeout(revealLoading, 1000)
+      })()
+    </script>
   </head>
   <body>
     <main>
       <section id="app">
-        <p>Loading...</p>
-        <p>
-          If you see this message for more than a minute you might have a
-          network issue. Check your network connection and refresh the page. If
-          the issue persists you may be using an unsupported browser. It is
-          recommended to use a modern browser like Mozilla Firefox or Google
-          Chrome.
-        </p>
+        <div id="loading" class="hidden">
+          <img id="icon" src="logo.svg" alt="Rollup.js logo" />
+        </div>
         <noscript>
           <h6>This site requires JavaScript to be enabled</h6>
         </noscript>
@@ -29,6 +54,7 @@
       crossorigin
       src="https://polyfill.io/v3/polyfill.min.js?features=requestAnimationFrame%2CSet%2CMap"
     ></script>
+
     <script type="module" src="{{ manifest.main }}"></script>
     {% if ENV == 'production' %}
     <script nomodule src="{{ manifest.nomodule }}"></script>
