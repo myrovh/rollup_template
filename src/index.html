@@ -19,11 +19,6 @@
         width: 100%;
         display: flex;
       }
-      #icon {
-        width: 200px;
-        height: 200px;
-        margin: auto;
-      }
     </style>
     <script>
       ;(function() {
@@ -42,7 +37,12 @@
     <main>
       <section id="app">
         <div id="loading" class="hidden">
-          <img id="icon" src="logo.svg" alt="Rollup.js logo" />
+          <img
+            id="icon"
+            src="logo.svg"
+            alt="Rollup.js logo"
+            style="width: 200px; height: 200px; margin: auto;"
+          />
         </div>
         <noscript>
           <h6>This site requires JavaScript to be enabled</h6>
@@ -52,7 +52,7 @@
 
     <script
       crossorigin
-      src="https://polyfill.io/v3/polyfill.min.js?features=requestAnimationFrame%2CSet%2CMap"
+      src="https://polyfill.app/api/polyfill?features=es.symbol,es.set,es.map,requestanimationframe"
     ></script>
 
     <script type="module" src="{{ manifest.main }}"></script>
