@@ -11,14 +11,16 @@ type entryInfo = {
 // TODO attempt to use rollup-plugin-ts to combine babel and tsc, compare build time and bundle size
 // TODO try some different development servers
 // TODO setup hosting on now
-// TODO setup eslint
 // TODO setup stylelint
+// TODO setup jest with react and javascript function tests
 
-export const App = () => {
+const jsFileRegexp = new RegExp(/\.m?js$/)
+
+export const App = (): JSX.Element => {
   function getImportedModules(): entryInfo[] {
     return performance
       .getEntriesByType('resource')
-      .filter(entry => entry.name.match(/\.m?js$/))
+      .filter(entry => jsFileRegexp.exec(entry.name))
       .map(entry => {
         const date = new Date(
           Math.round(entry.startTime + performance.timeOrigin),

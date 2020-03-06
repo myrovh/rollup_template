@@ -6,3 +6,9 @@ node_modules/
 
 # App
 dist/
+
+# Yarn 2
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+.pnp.*
